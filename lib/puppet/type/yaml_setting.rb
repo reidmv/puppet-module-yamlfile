@@ -24,6 +24,10 @@ Puppet::Type.newtype(:yaml_setting) do
     end
   end
 
+  newparam(:type) do
+    desc "The data type"
+  end
+
   newproperty(:value) do
     desc "The value to give the configuration key"
   end
