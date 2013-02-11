@@ -1,27 +1,23 @@
 require 'puppetx/filemapper'
 require 'yaml'
 
-require 'ruby-debug'
-
 Puppet::Type.type(:yaml_setting).provide(:mapped) do
   include PuppetX::FileMapper
 
   desc "Generic filemapper provider for yaml_setting"
 
   def select_file
-    #target
-    '/tmp/test.yaml'
+    target || resource.original_parameters[:target]
   end
 
   def self.target_files
-    #target
-    ['/tmp/test.yaml']
+    @all_providers.map{|p| p.resource.original_parameters[:target] }.uniq
   end
 
   def self.properties_to_hash(array)
     hashes = Array.new
     array.each do |r|
-      hashes << r[:name].split('/').reverse.inject(r[:value]) do |a,n|
+      hashes << r[:key].split('/').reverse.inject(r[:value]) do |a,n|
         { n => a }
       end
     end
@@ -41,7 +37,7 @@ Puppet::Type.type(:yaml_setting).provide(:mapped) do
     result = Array.new
     value.each do |k,v|
       result << r_hash_to_properties(k,v).map do |elem|
-        elem[:name] = elem[:name] ? "#{k}/#{elem[:name]}" : k
+        elem[:key] = elem[:key] ? "#{k}/#{elem[:key]}" : k
         elem
       end
     end
@@ -75,6 +71,7 @@ Puppet::Type.type(:yaml_setting).provide(:mapped) do
     properties_hashes = hash_to_properties(yaml)
     properties_hashes.map! do |resource|
       resource[:target] = filename
+      resource[:name]   = "#{resource[:target].to_s}:#{resource[:key].to_s}"
       resource
     end
     properties_hashes
@@ -83,13 +80,14 @@ Puppet::Type.type(:yaml_setting).provide(:mapped) do
   def self.format_file(filename, providers)
     properties_hashes = providers.inject([]) do |arr, provider|
       hash = Hash.new
-      hash[:name]   = provider.name
+      hash[:name]   = "#{provider.target.to_s}:#{provider.key.to_s}"
       hash[:target] = provider.target
+      hash[:key]    = provider.key
       hash[:value]  = provider.value
       arr << hash
     end
     content_hash = properties_to_hash(properties_hashes)
-    transform_keys_to_strings(content_hash).to_yaml
+    transform_keys_to_strings(content_hash).to_yaml << "\n"
   end
 
 end
