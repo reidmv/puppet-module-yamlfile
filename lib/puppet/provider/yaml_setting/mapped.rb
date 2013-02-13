@@ -11,7 +11,15 @@ Puppet::Type.type(:yaml_setting).provide(:mapped) do
   end
 
   def self.target_files
-    @all_providers.map{|p| p.resource.original_parameters[:target] }.uniq
+    @all_providers.map do |provider|
+      if provider.target
+        provider.target
+      elsif provider.resource
+        provider.resource.original_parameters[:target]
+      else
+        raise Puppet::Error, "provider does not have a target or a resource. name: #{provider.name}"
+      end
+    end.uniq
   end
 
   def self.properties_to_hash(array)
