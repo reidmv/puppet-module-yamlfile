@@ -1,5 +1,51 @@
 Puppet::Type.newtype(:yaml_setting) do
   @doc = "Manage settings in yaml configuration files"
+  desc <<-EOT
+    Ensures that a given yaml hash key and value exists within a yaml file.
+    Nested hash keys can be specified by a key-delimited string. Existing
+    data in the target yaml file will be preserved. No guarantees about
+    comments or other formatting/non-functional details.
+
+    Example:
+
+      yaml_setting { 'simple_example':
+        target => '/etc/example.yaml',
+        key    => 'greeting',
+        value  => 'hello',
+      }
+
+      yaml_setting { 'nested_key_example1':
+        target  => '/etc/example.yaml',
+        key     => 'database/username',
+        value   => 'console',
+      }
+
+      yaml_setting { 'nested_key_example2':
+        target  => '/etc/example.yaml',
+        key     => 'database/password',
+        value   => 'passw0rd',
+      }
+
+      yaml_setting { 'nested_key_example3':
+        target  => '/etc/example.yaml',
+        key     => 'one/two/three',
+        value   => [ 'a', 'b', 'c' ],
+      }
+
+    Result (/etc/example.yaml):
+
+      --- 
+        greeting: hello
+        database:
+          username: console
+          password: passw0rd
+
+    In this example, several yaml_settings were specified and the resulting
+    merged hash was created in /etc/example.yaml. If /etc/example.yaml had
+    already contained data, any keys not specified in a yaml_setting resource
+    would be preserved.
+
+  EOT
 
   ensurable
 
