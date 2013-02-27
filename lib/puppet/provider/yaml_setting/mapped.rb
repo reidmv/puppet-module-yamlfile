@@ -80,6 +80,14 @@ Puppet::Type.type(:yaml_setting).provide(:mapped) do
     properties_hashes.map! do |resource|
       resource[:target] = filename
       resource[:name]   = "#{resource[:target].to_s}:#{resource[:key].to_s}"
+      resource[:type]   = resource[:value].class.to_s.downcase
+
+      # Hack alert. This is done because since we have :array_matching=>:all
+      # in the type, all values regardless of Type (array, string, etc) are
+      # given as an array of values. Ok fine. We'll consider this as an array
+      # of values.
+      resource[:value]  = [resource[:value]].flatten
+
       resource
     end
     properties_hashes
@@ -92,6 +100,9 @@ Puppet::Type.type(:yaml_setting).provide(:mapped) do
       hash[:target] = provider.target
       hash[:key]    = provider.key
       hash[:value]  = provider.value
+      if provider.type != 'array' and hash[:value].is_a?(Array)
+        hash[:value] = hash[:value].join(' ')
+      end
       arr << hash
     end
     content_hash = properties_to_hash(properties_hashes)

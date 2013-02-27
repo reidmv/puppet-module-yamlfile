@@ -29,6 +29,7 @@ Puppet::Type.newtype(:yaml_setting) do
       yaml_setting { 'nested_key_example3':
         target  => '/etc/example.yaml',
         key     => 'one/two/three',
+        type    => 'array',
         value   => [ 'a', 'b', 'c' ],
       }
 
@@ -36,9 +37,15 @@ Puppet::Type.newtype(:yaml_setting) do
 
       --- 
         greeting: hello
-        database:
+        database: 
           username: console
           password: passw0rd
+        one: 
+          two: 
+            three: 
+              - a
+              - b
+              - c
 
     In this example, several yaml_settings were specified and the resulting
     merged hash was created in /etc/example.yaml. If /etc/example.yaml had
@@ -70,11 +77,11 @@ Puppet::Type.newtype(:yaml_setting) do
     end
   end
 
-  newparam(:type) do
+  newproperty(:type) do
     desc "The data type"
   end
 
-  newproperty(:value) do
+  newproperty(:value, :array_matching => :all) do
     desc "The value to give the configuration key"
   end
 
