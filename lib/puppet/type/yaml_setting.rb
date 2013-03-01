@@ -83,6 +83,24 @@ Puppet::Type.newtype(:yaml_setting) do
 
   newproperty(:value, :array_matching => :all) do
     desc "The value to give the configuration key"
+
+    def should_to_s(new_value=@should)
+      display = if @resource[:type] != 'array' and new_value.is_a?(Array)
+        new_value.join(' ')
+      else
+        new_value
+      end
+      display
+    end
+
+    def is_to_s(current_value=@is)
+      display = if current_value.is_a?(Array) and current_value.size > 1
+        current_value
+      else
+        current_value.join(' ')
+      end
+      display
+    end
   end
 
   # Our title_patterns method for mapping titles to namevars for supporting
