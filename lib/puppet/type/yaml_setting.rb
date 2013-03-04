@@ -62,27 +62,33 @@ Puppet::Type.newtype(:yaml_setting) do
     isnamevar
   end
 
+  newproperty(:type) do
+    desc "The data type"
+  end
+
   newproperty(:key) do
     desc "The yaml key"
     isrequired
     isnamevar
   end
 
-  newparam(:name) do
-    desc "The name"
-    munge do |discard|
-      target = @resource.original_parameters[:target]
-      key    = @resource.original_parameters[:key]
-      "#{target.to_s}:#{key.to_s}"
-    end
-  end
-
-  newproperty(:type) do
-    desc "The data type"
-  end
-
   newproperty(:value, :array_matching => :all) do
     desc "The value to give the configuration key"
+
+    munge do |value|
+      if @resource[:type]
+        case @resource[:type].to_sym
+        when :integer
+          value.to_i
+        when :float
+          value.to_f
+        else
+          value
+        end
+      else
+        value
+      end
+    end
 
     def should_to_s(new_value=@should)
       display = if @resource[:type] != 'array' and new_value.is_a?(Array)
@@ -102,6 +108,16 @@ Puppet::Type.newtype(:yaml_setting) do
       display
     end
   end
+
+  newparam(:name) do
+    desc "The name"
+    munge do |discard|
+      target = @resource.original_parameters[:target]
+      key    = @resource.original_parameters[:key]
+      "#{target.to_s}:#{key.to_s}"
+    end
+  end
+
 
   # Our title_patterns method for mapping titles to namevars for supporting
   # composite namevars.

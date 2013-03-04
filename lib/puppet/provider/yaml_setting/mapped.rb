@@ -80,12 +80,18 @@ Puppet::Type.type(:yaml_setting).provide(:mapped) do
     properties_hashes.map! do |resource|
       resource[:target] = filename
       resource[:name]   = "#{resource[:target].to_s}:#{resource[:key].to_s}"
-      resource[:type]   = resource[:value].class.to_s.downcase
+      resource[:type]   = case resource[:value].class.to_s.downcase.to_sym
+      when :fixnum
+        'integer'
+      else
+        resource[:value].class.to_s.downcase
+      end
 
       # Hack alert. This is done since because we have :array_matching=>:all
       # in the type, all values regardless of Type (array, string, etc) are
       # given as an array of values. Ok fine. We'll consider this as an array
-      # of values.
+      # of values so that stuff read in from the file is represented in the
+      # same way as stuff defined in Puppet
       resource[:value]  = [resource[:value]].flatten
 
       resource
@@ -108,8 +114,10 @@ Puppet::Type.type(:yaml_setting).provide(:mapped) do
         provider.value.first.to_i
       when :float
         provider.value.first.to_f
+      when :trueclass, :falseclass
+        provider.value.first
       else
-        Puppet.warn "unexpected type #{provider.type}; defaulting to string"
+        Puppet.warning "unexpected type #{provider.type}; defaulting to string"
         provider.value.to_s
       end
       arr << hash
