@@ -82,7 +82,7 @@ Puppet::Type.type(:yaml_setting).provide(:mapped) do
       resource[:name]   = "#{resource[:target].to_s}:#{resource[:key].to_s}"
       resource[:type]   = resource[:value].class.to_s.downcase
 
-      # Hack alert. This is done because since we have :array_matching=>:all
+      # Hack alert. This is done since because we have :array_matching=>:all
       # in the type, all values regardless of Type (array, string, etc) are
       # given as an array of values. Ok fine. We'll consider this as an array
       # of values.
@@ -99,9 +99,18 @@ Puppet::Type.type(:yaml_setting).provide(:mapped) do
       hash[:name]   = "#{provider.target.to_s}:#{provider.key.to_s}"
       hash[:target] = provider.target
       hash[:key]    = provider.key
-      hash[:value]  = provider.value
-      if provider.type != 'array' and hash[:value].is_a?(Array)
-        hash[:value] = hash[:value].join(' ')
+      hash[:value]  = case provider.type.to_sym
+      when :array
+        provider.value
+      when :string
+        provider.value.to_s
+      when :fixnum, :integer
+        provider.value.first.to_i
+      when :float
+        provider.value.first.to_f
+      else
+        Puppet.warn "unexpected type #{provider.type}; defaulting to string"
+        provider.value.to_s
       end
       arr << hash
     end
