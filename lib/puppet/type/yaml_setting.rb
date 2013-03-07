@@ -62,14 +62,14 @@ Puppet::Type.newtype(:yaml_setting) do
     isnamevar
   end
 
-  newproperty(:type) do
-    desc "The data type"
-  end
-
   newproperty(:key) do
     desc "The yaml key"
     isrequired
     isnamevar
+  end
+
+  newparam(:nodisplay) do
+    defaultto false
   end
 
   newproperty(:value, :array_matching => :all) do
@@ -96,7 +96,7 @@ Puppet::Type.newtype(:yaml_setting) do
       else
         new_value
       end
-      display
+      @resource[:nodisplay] ? "[new value redacted]" : display
     end
 
     def is_to_s(current_value=@is)
@@ -105,7 +105,14 @@ Puppet::Type.newtype(:yaml_setting) do
       else
         current_value.join(' ')
       end
-      display
+      @resource[:nodisplay] ? "[old value redacted]" : display
+    end
+  end
+
+  newproperty(:type) do
+    desc "The data type"
+    defaultto do
+      resource[:value].size > 1 ? 'array' : 'string'
     end
   end
 
