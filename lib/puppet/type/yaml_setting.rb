@@ -72,6 +72,11 @@ Puppet::Type.newtype(:yaml_setting) do
     defaultto false
   end
 
+  newproperty(:type) do
+    desc "The data type"
+    defaultto { 'string' }
+  end
+
   newproperty(:value, :array_matching => :all) do
     desc "The value to give the configuration key"
 
@@ -106,13 +111,6 @@ Puppet::Type.newtype(:yaml_setting) do
         current_value.join(' ')
       end
       @resource[:nodisplay] ? "[old value redacted]" : display
-    end
-  end
-
-  newproperty(:type) do
-    desc "The data type"
-    defaultto do
-      resource[:value].size > 1 ? 'array' : 'string'
     end
   end
 
