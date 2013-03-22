@@ -22,6 +22,22 @@ Puppet::Type.type(:yaml_setting).provide(:mapped) do
     end.uniq
   end
 
+  def self.conv_to_s(value)
+    if value.is_a? Symbol
+      ":#{value}"
+    else
+      value
+    end
+  end
+
+  def self.conv_to_sym(value)
+    if value.chars.first == ':'
+      value[1..-1].to_sym
+    else
+      value
+    end
+  end
+
   def self.properties_to_hash(array)
     hashes = Array.new
     array.each do |r|
@@ -45,6 +61,7 @@ Puppet::Type.type(:yaml_setting).provide(:mapped) do
     result = Array.new
     value.each do |k,v|
       result << r_hash_to_properties(k,v).map do |elem|
+        k = conv_to_s(k)
         elem[:key] = elem[:key] ? "#{k}/#{elem[:key]}" : k
         elem
       end
@@ -68,7 +85,7 @@ Puppet::Type.type(:yaml_setting).provide(:mapped) do
   def self.transform_keys_to_strings(value)
     return value if not value.is_a?(Hash)
     hash = value.inject({}) do |memo,(k,v)|
-      memo[k.to_s] = transform_keys_to_strings(v)
+      memo[conv_to_sym(k)] = transform_keys_to_strings(v)
       memo
     end
     return hash
@@ -80,9 +97,11 @@ Puppet::Type.type(:yaml_setting).provide(:mapped) do
     properties_hashes.map! do |resource|
       resource[:target] = filename
       resource[:name]   = "#{resource[:target].to_s}:#{resource[:key].to_s}"
-      resource[:type]   = case resource[:value].class.to_s.downcase.to_sym
-      when :fixnum
+      resource[:type]   = case resource[:value] #.class.to_s.downcase.to_sym
+      when Fixnum
         'integer'
+      when Symbol
+        'symbol'
       else
         resource[:value].class.to_s.downcase
       end
@@ -110,6 +129,8 @@ Puppet::Type.type(:yaml_setting).provide(:mapped) do
         provider.value
       when :string
         provider.value.to_s
+      when :symbol
+        provider.value.first.to_sym
       when :fixnum, :integer
         provider.value.first.to_i
       when :float

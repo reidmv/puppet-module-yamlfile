@@ -90,22 +90,31 @@ Puppet::Type.newtype(:yaml_setting) do
       end
     end
 
-    def should_to_s(new_value=@should)
-      display = if @resource[:type] != 'array' and new_value.is_a?(Array)
-        new_value.join(' ')
+    def should_to_s(val)
+      if @resource[:type] == 'array'
+        val.inspect
+      elsif @resource[:type] == 'symbol'
+        val.first.to_sym.inspect
       else
-        new_value
+        val.first.inspect
       end
-      display
     end
 
-    def is_to_s(current_value=@is)
-      display = if current_value.is_a?(Array) and current_value.size > 1
-        current_value
+    def is_to_s(val)
+      if @resource[:type] == 'array'
+        val.inspect
       else
-        current_value.join(' ')
+        val.first.inspect
       end
-      display
+    end
+
+    def insync?(is)
+      # can't munge value to symbol so must do it here:
+      if @resource[:type] == 'symbol'
+        should.first.to_sym == is.first
+      else
+        super(is)
+      end
     end
   end
 
