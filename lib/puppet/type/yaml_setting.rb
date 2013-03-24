@@ -69,6 +69,7 @@ Puppet::Type.newtype(:yaml_setting) do
   end
 
   newparam(:nodisplay) do
+    desc "Set to true for values such as passwords to obfuscate log output"
     defaultto false
   end
 
