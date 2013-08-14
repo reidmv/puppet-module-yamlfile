@@ -146,4 +146,8 @@ Puppet::Type.newtype(:yaml_setting) do
       ]
     ]
   end
+
+  autorequire :file do
+    self[:target]
+  end
 end
