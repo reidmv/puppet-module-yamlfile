@@ -116,6 +116,8 @@ Puppet::Type.type(:yaml_setting).provide(:mapped) do
         provider.value.first.to_f
       when :trueclass, :falseclass
         provider.value.first
+      when :nilclass
+        nil
       else
         Puppet.warning "unexpected type #{provider.type}; defaulting to string"
         provider.value.to_s
