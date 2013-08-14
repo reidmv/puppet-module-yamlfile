@@ -75,7 +75,10 @@ Puppet::Type.newtype(:yaml_setting) do
 
   newproperty(:type) do
     desc "The data type"
-    defaultto { 'string' }
+    # There is no default for this value. The validation routine of the "value"
+    # property will set one automatically if the user did not supply one. It is
+    # necessary to do it this way because until the value property is parsed,
+    # we don't know what kind of data the user supplied.
   end
 
   newproperty(:value, :array_matching => :all) do
@@ -93,6 +96,23 @@ Puppet::Type.newtype(:yaml_setting) do
         end
       else
         value
+      end
+    end
+
+    validate do |val|
+      case @resource[:type]
+      when nil
+        if @shouldorig.is_a?(Array) and @shouldorig.size > 1
+          @resource[:type] = :array
+        else
+          @resource[:type] = :string
+        end
+      when :hash, :array
+        # we're just leaving these values alone
+      else
+        if @shouldorig.is_a?(Array) and @shouldorig.size > 1
+          raise "Array provided, but type specified as #{@resource[:type]}."
+        end
       end
     end
 

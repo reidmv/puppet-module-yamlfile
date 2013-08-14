@@ -75,7 +75,7 @@ Puppet::Type.type(:yaml_setting).provide(:mapped) do
   end
 
   def self.parse_file(filename, contents)
-    # Load a data structure. Works for:
+    # Load an existing or instantiate a new data structure. Works for:
     #   - existing yaml files
     #   - existing empty files
     #   - non-existent files
