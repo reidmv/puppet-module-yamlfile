@@ -75,9 +75,12 @@ Puppet::Type.type(:yaml_setting).provide(:mapped) do
   end
 
   def self.parse_file(filename, contents)
-    yaml = File.exists?(filename) ? YAML::load(File.read(filename)) : {}
-    # Resolves issue if it's an empty file.
-    yaml ||= {}
+    # Load a data structure. Works for:
+    #   - existing yaml files
+    #   - existing empty files
+    #   - non-existent files
+    yaml = File.exists?(filename) ? YAML.load_file(filename) : {} or {}
+
     properties_hashes = hash_to_properties(yaml)
     properties_hashes.map! do |resource|
       resource[:target] = filename

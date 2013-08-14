@@ -64,7 +64,6 @@ Puppet::Type.newtype(:yaml_setting) do
 
   newproperty(:type) do
     desc "The data type"
-    defaultto('string')
   end
 
   newproperty(:key) do
