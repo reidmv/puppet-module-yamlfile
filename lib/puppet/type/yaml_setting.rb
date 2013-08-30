@@ -103,11 +103,11 @@ Puppet::Type.newtype(:yaml_setting) do
       case @resource[:type]
       when nil
         if @shouldorig.is_a?(Array) and @shouldorig.size > 1
-          @resource[:type] = :array
+          @resource[:type] = 'array'
         else
-          @resource[:type] = :string
+          @resource[:type] = 'string'
         end
-      when :hash, :array
+      when 'hash', 'array'
         # we're just leaving these values alone
       else
         if @shouldorig.is_a?(Array) and @shouldorig.size > 1
