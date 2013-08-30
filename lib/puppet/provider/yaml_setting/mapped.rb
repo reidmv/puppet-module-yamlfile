@@ -102,7 +102,7 @@ Puppet::Type.type(:yaml_setting).provide(:mapped) do
     properties_hashes.map! do |resource|
       resource[:target] = filename
       resource[:name]   = "#{resource[:target].to_s}:#{resource[:key].to_s}"
-      resource[:type]   = case resource[:value] #.class.to_s.downcase.to_sym
+      resource[:type]   = case resource[:value]
       when Fixnum
         'integer'
       when Symbol
@@ -133,7 +133,7 @@ Puppet::Type.type(:yaml_setting).provide(:mapped) do
       when :array
         provider.value
       when :string
-        provider.value.to_s
+        provider.value.first.to_s
       when :symbol
         provider.value.first.to_sym
       when :fixnum, :integer
