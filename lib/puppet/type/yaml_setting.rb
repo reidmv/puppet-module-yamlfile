@@ -117,10 +117,12 @@ Puppet::Type.newtype(:yaml_setting) do
     end
 
     def should_to_s(new_value=@should)
-      display = if @resource[:type] != 'array' and new_value.is_a?(Array)
+      display = if @resource[:type] == 'symbol'
+        val.first.to_sym.inspect
+      elsif @resource[:type] != 'array' and new_value.is_a?(Array)
         new_value.join(' ')
       else
-        new_value
+        val.first.inspect
       end
       @resource[:nodisplay] ? "[new value redacted]" : display
     end
@@ -132,6 +134,15 @@ Puppet::Type.newtype(:yaml_setting) do
         current_value.join(' ')
       end
       @resource[:nodisplay] ? "[old value redacted]" : display
+    end
+
+    def insync?(is)
+      # can't munge value to symbol so must do it here:
+      if @resource[:type] == 'symbol'
+        should.first.to_sym == is.first
+      else
+        super(is)
+      end
     end
   end
 
