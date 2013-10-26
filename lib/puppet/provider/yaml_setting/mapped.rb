@@ -96,7 +96,7 @@ Puppet::Type.type(:yaml_setting).provide(:mapped) do
     #   - existing yaml files
     #   - existing empty files
     #   - non-existent files
-    yaml = File.exists?(filename) ? YAML.load_file(filename) : {} or {}
+    yaml = (File.exists?(filename) ? YAML.load_file(filename) : {}) || {}
 
     properties_hashes = hash_to_properties(yaml)
     properties_hashes.map! do |resource|
