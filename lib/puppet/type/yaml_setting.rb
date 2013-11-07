@@ -122,7 +122,7 @@ Puppet::Type.newtype(:yaml_setting) do
       elsif @resource[:type] != 'array' and new_value.is_a?(Array)
         new_value.join(' ')
       else
-        val.first.inspect
+        new_value.first.inspect
       end
       @resource[:nodisplay] ? "[new value redacted]" : display
     end

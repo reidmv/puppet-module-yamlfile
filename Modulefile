@@ -1,5 +1,5 @@
 name    'reidmv-yamlfile'
-version '0.1.1'
+version '0.1.2'
 author  'Reid Vandewiele <reid@puppetlabs.com>'
 license 'Apache 2.0'
 
