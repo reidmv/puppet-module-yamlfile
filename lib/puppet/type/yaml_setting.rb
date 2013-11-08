@@ -105,7 +105,12 @@ Puppet::Type.newtype(:yaml_setting) do
         if @shouldorig.is_a?(Array) and @shouldorig.size > 1
           @resource[:type] = 'array'
         else
-          @resource[:type] = 'string'
+          case val.class.to_s.downcase.to_sym
+          when :trueclass, :falseclass
+            @resource[:type] = 'boolean'
+          else
+            @resource[:type] = 'string'
+          end
         end
       when 'hash', 'array'
         # we're just leaving these values alone

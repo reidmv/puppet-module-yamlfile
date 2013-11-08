@@ -107,6 +107,8 @@ Puppet::Type.type(:yaml_setting).provide(:mapped) do
         'integer'
       when Symbol
         'symbol'
+      when FalseClass, TrueClass
+        'boolean'
       else
         resource[:value].class.to_s.downcase
       end
@@ -140,8 +142,8 @@ Puppet::Type.type(:yaml_setting).provide(:mapped) do
         provider.value.first.to_i
       when :float
         provider.value.first.to_f
-      when :trueclass, :falseclass
-        provider.value.first
+      when :trueclass, :falseclass, :boolean
+        provider.value.first.to_s =~ /^true$/i ? true : false
       when :nilclass
         nil
       else
