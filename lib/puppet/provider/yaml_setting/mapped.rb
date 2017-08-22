@@ -1,4 +1,11 @@
-require 'puppetx/filemapper'
+begin
+  require 'puppetx/filemapper'
+rescue LoadError
+  require 'pathname'
+  archive = Puppet::Module.find('filemapper', Puppet[:environment].to_s)
+  raise(LoadError, "Unable to find archive module in modulepath #{Puppet[:basemodulepath] || Puppet[:modulepath]}") unless archive
+  require File.join archive.path, 'lib/puppetx/filemapper'
+end
 require 'yaml'
 
 Puppet::Type.type(:yaml_setting).provide(:mapped) do
