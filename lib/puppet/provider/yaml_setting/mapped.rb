@@ -103,7 +103,7 @@ Puppet::Type.type(:yaml_setting).provide(:mapped) do
       resource[:target] = filename
       resource[:name]   = "#{resource[:target].to_s}:#{resource[:key].to_s}"
       resource[:type]   = case resource[:value]
-      when Fixnum
+      when Integer
         'integer'
       when Symbol
         'symbol'
